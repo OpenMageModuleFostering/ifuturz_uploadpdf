@@ -2,7 +2,7 @@
 <config>
 	<modules>
 		<Ifuturz_Uploadpdf>
-			<version>0.1.0</version>
+			<version>0.3.0</version>
 		</Ifuturz_Uploadpdf>
 	</modules>
 	<frontend>
@@ -24,7 +24,17 @@
         </layout>
     </frontend>
 	<global>
-	<blocks>
+		<events>
+			<controller_action_predispatch>
+				<observers>
+					<uploadpdf_install>
+						<class>Ifuturz_Uploadpdf_Model_Observer</class>
+						<method>checkInstallation</method>
+					</uploadpdf_install>					
+				</observers>
+		</controller_action_predispatch>
+		</events>
+		<blocks>
 			<uploadpdf>
 				<class>Ifuturz_Uploadpdf_Block</class>
 			</uploadpdf>
@@ -34,7 +44,7 @@
 				</rewrite>
 			</adminhtml>
 		</blocks>
-	<models>
+		<models>
 			<uploadpdf>
 				<class>Ifuturz_Uploadpdf_Model</class>
 				<resourceModel>uploadpdf_mysql4</resourceModel>
