@@ -1,0 +1,42 @@
+<?php
+$current_product = Mage::registry('current_product');
+$productid = $current_product->getEntityId();
+
+$write = Mage::getSingleton('core/resource')->getConnection('core_write');
+			//echo "SELECT * from ifuturz_uploadpdf WHERE product_id='$pid' ";
+			$readresult=$write->query("SELECT * from ifuturz_uploadpdf WHERE product_id='$productid' ");
+			$entityid = $readresult->fetchAll();
+			//echo "<pre>";print_r($entityid);
+			$eid =  $entityid[0]['pdf_file'];
+			if($eid!='')
+			{
+			?>
+				<div class="collateral-box">
+					<div class="head">
+							<h4><?php echo $this->__('PDF Downloads') ?></h4>
+					</div>
+				</div>
+				<?php
+				
+				for($i=0; $i<count($entityid) ;$i++)
+				{
+					//echo Mage::getBaseUrl('media')."pdffiles/uploadedfiles/".$entityid[$i]['pdf_path'];
+					$front = $entityid[$i]['pdf_file'];
+					$pdfnm = $entityid[$i]['pdfname'];
+					//$pdfnew = explode('/',$pdf);
+					//$pdfexp = $pdfnew[8];
+					//$pdffinal = str_replace('.pdf','',$pdfexp);
+					
+					if($pdfnm == "")
+					{
+						$ext = explode(".", $front);
+						echo '<li style="font-family: verdana;margin-bottom: 15px;margin-left: 10px;"><a target="_blank" href="'.$entityid[$i]['pdf_path'].'">'.$ext[0].'</a><br /></li>';
+					}
+					else
+					{
+						echo '<li style="font-family: verdana;margin-bottom: 15px;margin-left: 10px;"><a target="_blank" href="'.$entityid[$i]['pdf_path'].'">'.$pdfnm.'</a><br /></li>';
+					}
+				}
+			}
+			//echo "<pre>"; print_r($entityid);
+			?>

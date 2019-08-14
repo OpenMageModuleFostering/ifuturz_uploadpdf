@@ -1,0 +1,131 @@
+<?php $get_editid = $_GET['editid']; ?>
+
+<style type="text/css">
+.uploadpdf-list td.label {
+	background: none repeat scroll 0 center transparent !important;
+    border: 0 none !important;
+    padding-bottom: 5px !important;
+    padding-left: 5px !important;
+    padding-top: 5px !important;	
+}
+.tdf:hover
+{
+	background-color:#F5EEDF;	
+}
+</style>
+
+<div style="" id="product_info_tabs_group_4_content">
+<div class="entry-edit">
+    <div class="entry-edit-head">
+    	<h4 class="icon-head head-edit-form fieldset-legend">
+        
+        <?php if($get_editid == '') { ?>
+        	Upload PDF
+        <?php } else { ?>
+		    Edit PDF (ID: <?php echo $get_editid; ?>)
+		<?php } ?>
+        
+        </h4>
+    </div>
+     <div id="group_fields4" class="fieldset fieldset-wide">
+    	<div class="hor-scroll">
+            <table cellspacing="0" class="uploadpdf-list">
+            	<tbody>
+
+					<?php
+                    $write = Mage::getSingleton('core/resource')->getConnection('core_write');
+                    $cpid=Mage::registry('current_product')->getId(); 
+                    $readresult=$write->query("SELECT pdfname,pdf_file from ifuturz_uploadpdf WHERE pdf_id = '$get_editid'");
+                    $result = $readresult->fetchAll();
+                    $pdfname = $result[0]['pdfname'];
+					$pdffile = $result[0]['pdf_file'];
+                    ?>
+                    <?php if($get_editid != '') { ?>
+                    
+                    <tr>
+                        <td class="label" colspan="2">
+                        	<a href="?editid=">Upload New PDF</a>
+                        </td>
+                    </tr>  
+                    
+                    <tr>
+                        <td class="label"><label for="name">ID<!--<span class="required">*</span>--></label></td>
+                        <td class="value"><b><?php echo $get_editid ?></b></td>
+                    </tr> 
+                    	
+                    <?php } ?>
+                    <tr>
+                        <td class="label" width="100px"><label for="name">PDF Name<!--<span class="required">*</span>--></label></td>
+                        <td class="value"><input type="text" value="<?php echo $pdfname ?>" name="pdf_name" id="pdf_name"></td>
+                    </tr>                
+                    <tr>
+                        <td class="label" width="100px"><label for="name">Upload PDF File <!--<span class="required">*</span>--></label></td>
+                        <td class="value">
+                        	<input type="file" value="" name="upload_pdf" id="Upload pdf file">&nbsp;&nbsp;<?php echo $pdffile; ?>
+                        </td>
+                    </tr>
+    			</tbody>
+   			 </table>
+    	</div>
+	</div>
+   </div>
+ </div>
+
+<div class="entry-edit">
+    <div class="entry-edit-head">
+        <h4 class="icon-head head-edit-form fieldset-legend"><?php echo Mage::helper('uploadpdf')->__('Manage PDF(s)') ?></h4>
+    </div>
+     <fieldset style="padding:0px">
+          <table cellspacing="0" border = "0" class="uploadpdf-list" id="table_color" style="width:100%">
+             <tr bgcolor="#EFE6E6">
+                <td class="label" width="60px"><b>ID</b></td>
+                <td class="label"><b>PDF Name</b></td>
+                <td class="label"><b>PDF File</b></td>
+                <td class="label"><b>Action</b></td>
+                <td class="label" width="60px"><b>Remove</b></td>
+             </tr>
+              <?php 
+                // echo "SELECT  pdfname from ifuturz_uploadpdf WHERE product_id='$cpid'";		 
+                $readresult=$write->query("SELECT * from ifuturz_uploadpdf WHERE product_id='$cpid'");
+                $result = $readresult->fetchAll();
+                $cnt_updf = count($result);
+                //echo "<pre>";print_r($result);
+            $up = 1;
+            if($cnt_updf > 0)
+            {
+              foreach($result as $col){
+                  //echo $col['pdf_id']; 
+				  if($up%2==0) {
+				  ?>
+                 <tr bgcolor="#F6F6F6" class="tdf">
+                 <?php } else { ?>
+                 <tr bgcolor="#FFFFFF" class="tdf">
+                 <?php } ?>
+                    <td class="label"><?php  echo $col['pdf_id'];	?></td>
+                    <td class="label"><?php  echo $col['pdfname'];	?></td>
+                    <td class="label"><?php  echo $col['pdf_file'];?></td>
+                    <td class="label">
+                        <a href="?editid=<?php echo $col['pdf_id']; ?>" title="Edit (ID: <?php echo $col['pdf_id']; ?>)">
+                            Edit
+                        </a>
+                    </td>
+                    <td class="label">
+                        <input type="checkbox" class="testdelete" name = "chkdelete[]" title="Delete (ID: <?php echo $col['pdf_id']; ?>)" value = "<?php echo $col['pdf_id']; ?>" />
+                    </td>
+                 </tr>
+                
+             <?php 
+			 $up++;
+			 }
+				}  else { ?>
+				
+				 <tr>
+					<td class="label" colspan="3">No PDF uploaded.</td>
+				 </tr>
+					
+				<?php } ?>
+                
+             <input type="hidden" name="colorid" id="colorid" >
+         </table>
+      </fieldset>
+  </div>
