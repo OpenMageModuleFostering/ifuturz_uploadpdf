@@ -96,11 +96,11 @@
         <events>
             <catalog_product_save_after>
                 <observers>
-                    <ifuturz_save_product_data9>
+                    <ifuturz_save_product_pdf>
                         <type>singleton</type>
                         <class>uploadpdf/observer</class>
-                        <method>saveProductTabData</method>
-                    </ifuturz_save_product_data9> 
+                        <method>saveProductPdf</method>
+                    </ifuturz_save_product_pdf> 
                 </observers>
             </catalog_product_save_after>
         </events>

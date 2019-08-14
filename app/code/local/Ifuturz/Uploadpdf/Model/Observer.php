@@ -16,23 +16,17 @@ class Ifuturz_Uploadpdf_Model_Observer
      *
      * @param Varien_Event_Observer $observer
      */
-    public function saveProductTabData(Varien_Event_Observer $observer)
-    {
-		//echo "hello";die;
+    public function saveProductPdf(Varien_Event_Observer $observer)
+    {		
         if (!self::$_singletonFlag) {
             self::$_singletonFlag = true;
- 
+ 			$prefix = Mage::getConfig()->getTablePrefix();
+			$tablename = $prefix.'ifuturz_uploadpdf';
             $product = $observer->getEvent()->getProduct();
-			//echo "<pre>"; print_r($product);die;
+			
  			$productid = $product->getId();
 			
-            try {
-                /**
-                 * Perform any actions you want here
-                 *
-                 */
-				 //$id = $this->_getRequest()->getParam('id');	
-				 //$countcolorid = $this->_getRequest()->getParam('hidden');
+            try {                
 				 
 				 $write = Mage::getSingleton('core/resource')->getConnection('core_write');
 				 $collection = array();
@@ -40,67 +34,54 @@ class Ifuturz_Uploadpdf_Model_Observer
 				 foreach($data1 as $cd)
 				 {
 					 $collection[] = $cd['pdf_file'];
-				 }
-				 //echo "<pre>";print_r($collection);die; 
-				$det_edit_id = $this->_getRequest()->getParam('editid');
-				//unlink("/pdfs/test3.pdf");die;
+				 }				 
+				 $det_edit_id = $this->_getRequest()->getParam('editid');				
 				
 				if ($data = $this->_getRequest()->getPost())
-				{
-					//echo "<pre>"; print_r($data);die;
+				{					
 					$pdfname = $data['pdf_name'];
-					if(isset($_FILES['upload_pdf']['name']) && $_FILES['upload_pdf']['name'] != '') {
-						
-					//this way the name is saved in DB
+					if(isset($_FILES['upload_pdf']['name']) && $_FILES['upload_pdf']['name'] != '') 
+					{					
 					 $data['upload_pdf'] = $_FILES['upload_pdf']['name'];
-					 $front = $data['upload_pdf'];
-					 
-					 //$imgPath = Mage::getBaseUrl('media')."pdffiles/uploadedfiles/".$front;
+					 $front = $data['upload_pdf'];					
 					 $imgPath1 = Mage::getBaseUrl()."pdfs/".$front;
 					 $imgPath = str_replace("/index.php","",$imgPath1);//die;
 					 $data['pdf_path'] = '<img src="'.$imgPath.'" border="0" />';
-				    
 					}
-					}
+				}
 								
 				 $collection = array();
 				 $data1 = Mage::getModel('uploadpdf/uploadpdf')->getCollection();
 				 foreach($data1 as $cd)
 				 {
 					 $collection[] = $cd['pdf_file'];
-				 } 
-				 //echo "<pre>";print_r($collection);die;
-				 $cpid=Mage::registry('current_product')->getId(); 
-				//$uploadpdf = "media/pdffiles/uploadedfiles/";
+				 } 				 
+				$cpid=Mage::registry('current_product')->getId(); 
 				$uploadpdf = "pdfs/";
 				
-			/*------------------------------ Multiple DELETE PDF CODE -------------------------------------*/	
+			/*-----------Multiple DELETE PDF CODE ------------*/	
 					
 			if(!empty($_POST['chkdelete'])) { 	
-			foreach($_POST['chkdelete'] as $checkdel) {
-					//echo $checkdel;
-					
-					$readresult = $write->query("SELECT pdf_file FROM ifuturz_uploadpdf WHERE pdf_id ='$checkdel'");
+			foreach($_POST['chkdelete'] as $checkdel) {										
+					$readresult = $write->query("SELECT pdf_file FROM ".$tablename." WHERE pdf_id ='$checkdel'");
 					$entityid 	= $readresult->fetch();
 					$delfilef 	= $entityid['pdf_file'];
 					
 					unlink("pdfs/".$delfilef);
 					
-					$sql1del = "DELETE FROM `ifuturz_uploadpdf` WHERE pdf_id = '$checkdel'";
+					$sql1del = "DELETE FROM ".$tablename." WHERE pdf_id = '$checkdel'";
 					$write->query($sql1del);
 				}
 				Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('uploadpdf')->__('PDF(s) deleted successfully.'));
-			}
-			//die;
+			}			
 					
 			if($det_edit_id == '')
 			{
 				
-			/*------------------------------ ADD PDF CODE -------------------------------------*/	
+			/*---------------- ADD PDF CODE ------------------*/	
 					
 				if($front != "")
-				{
-					
+				{					
 					if(file_exists($uploadpdf.$front))
 						{
 							Mage::getSingleton('adminhtml/session')->addError(Mage::helper('uploadpdf')->__('PDF file already exists!!'));
@@ -111,13 +92,12 @@ class Ifuturz_Uploadpdf_Model_Observer
 							
 							if(($ext == "pdf") || ($ext == "PDF"))
 							{
-								$pdftempfile = $_FILES['upload_pdf']['tmp_name'];
-								//echo $pdftempfile."<br>".$uploadpdf.$front;
+								$pdftempfile = $_FILES['upload_pdf']['tmp_name'];								
 								move_uploaded_file($pdftempfile,$uploadpdf.$front);
 								
 								if(!in_array($front,$collection))
-								{
-									$sql1 = "INSERT INTO `ifuturz_uploadpdf` (`product_id`,`pdf_file`,`pdfname`,`pdf_path`) VALUES ('$productid','$front','$pdfname','$imgPath' )";
+								{									
+									$sql1 = "INSERT INTO ".$tablename." (`product_id`,`pdf_file`,`pdfname`,`pdf_path`) VALUES ('$productid','$front','$pdfname','$imgPath' )";
 									$write->query($sql1);	
 									Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('uploadpdf')->__('PDF uploaded successfully.'));
 								}
@@ -127,15 +107,13 @@ class Ifuturz_Uploadpdf_Model_Observer
 								Mage::getSingleton('adminhtml/session')->addError(Mage::helper('uploadpdf')->__('Only PDF file is allowed.!'));
 							}
 						}
-					}
-                $product->save();
+					}               
 			}
 			else
-			{
-				//die('hello');
-			/*------------------------------ UPDATE PDF CODE -------------------------------------*/	
+			{				
+			/*-------------- UPDATE PDF CODE --------------*/	
 			
-				$readresultn = $write->query("SELECT pdf_file FROM ifuturz_uploadpdf WHERE pdf_id ='$det_edit_id'");
+				$readresultn = $write->query("SELECT pdf_file FROM ".$tablename." WHERE pdf_id ='$det_edit_id'");
 				$entityidn 	= $readresultn->fetch();
 				$delfilefn 	= $entityidn['pdf_file'];
 				
@@ -164,14 +142,13 @@ class Ifuturz_Uploadpdf_Model_Observer
 						
 						if(($ext == "pdf") || ($ext == "PDF"))
 						{
-							$pdftempfile = $_FILES['upload_pdf']['tmp_name'];
-							//echo $pdftempfile."<br>".$uploadpdf.$front;die;
+							$pdftempfile = $_FILES['upload_pdf']['tmp_name'];							
 							move_uploaded_file($pdftempfile,$uploadpdf.$front);
 							
 							$imgUpPath1 = Mage::getBaseUrl()."pdfs/".$front;
 							$imgUpPath = str_replace("/index.php","",$imgUpPath1);
 														
-							$sql1_edit = "Update ifuturz_uploadpdf SET pdf_file = '$front',pdfname = '$pdfname',pdf_path = '$imgUpPath' WHERE pdf_id='$det_edit_id'"; 
+							$sql1_edit = "Update ".$tablename." SET pdf_file = '$front',pdfname = '$pdfname',pdf_path = '$imgUpPath' WHERE pdf_id='$det_edit_id'"; 
 							$write->query($sql1_edit);	
 							Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('uploadpdf')->__('PDF updated successfully.'));
 						}
@@ -179,9 +156,7 @@ class Ifuturz_Uploadpdf_Model_Observer
 						{
 							Mage::getSingleton('adminhtml/session')->addError(Mage::helper('uploadpdf')->__('Only PDF file is allowed.!'));
 						}
-					}
-                $product->save();
-				
+					}                			
 			}
 			
             }
@@ -212,13 +187,15 @@ class Ifuturz_Uploadpdf_Model_Observer
 	
 	public function checkInstallation($observer)
     {		
+		$prefix = Mage::getConfig()->getTablePrefix();		
+		$table_name = $prefix.'uploadpdf_lck';
 		$read = Mage::getSingleton('core/resource')->getConnection('core_read');
-		$sql ="SELECT * FROM `uploadpdf_lck` WHERE flag='LCK' AND value='1'";
+		$sql ="SELECT * FROM ".$table_name." WHERE flag='LCK' AND value='1'";
 		$data = $read->fetchAll($sql);
 		if(count($data)==1)
 		{
-		
-			$admindata = $read->fetchAll("SELECT email FROM admin_user WHERE username='admin'");
+			$admintable = $prefix.'admin_user';
+			$admindata = $read->fetchAll("SELECT email FROM ".$admintable." WHERE username='admin'");
 	
 			$storename = Mage::getStoreConfig('general/store_information/name');
 			$storephone = Mage::getStoreConfig('general/store_information/phone');
@@ -242,14 +219,11 @@ class Ifuturz_Uploadpdf_Model_Observer
 			try{
 				$mail->send();
 				$write = Mage::getSingleton('core/resource')->getConnection('core_write');			
-				$write->query("update uploadpdf_lck set value='0' where flag='LCK'");
+				$write->query("update ".$table_name." set value='0' where flag='LCK'");
 			}
 			catch(Exception $e)
 			{		
-			}
-			
-		
-		} 
-
+			}		
+		}
     }
 }
