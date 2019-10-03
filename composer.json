@@ -1,16 +1,19 @@
 {
-    "name": "OpenMageModuleFostering/Ifuturz_Uploadpdf",
+    "name": "OpenMageModuleFostering\/Ifuturz_Uploadpdf",
     "type": "magento-module",
     "license": "OSL-v3.0",
     "homepage": "",
     "description": "Customer can upload the multiple pdf for one single product from product page in admin panel.",
     "authors": [
-    {
-        "name": "Iverve",
-        "email": "extension.geek@ifuturz.com"
-    }
-],
+        {
+            "name": "Iverve",
+            "email": "extension.geek@ifuturz.com"
+        }
+    ],
     "suggest": {
-        "magento-hackathon/magento-composer-installer": "*"
-    }
+        "magento-hackathon\/magento-composer-installer": "*"
+    },
+    "keywords": [
+        "openmage-module"
+    ]
 }
